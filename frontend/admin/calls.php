@@ -3,18 +3,13 @@ require_once 'auth.php';
 require_once 'config.php';
 checkLogin();
 
-// Fetch Stats
-$total_calls = $pdo->query("SELECT COUNT(*) FROM calls")->fetchColumn();
-$interested_calls = $pdo->query("SELECT COUNT(*) FROM calls WHERE result = 'Interested'")->fetchColumn();
-$avg_duration = $pdo->query("SELECT AVG(duration) FROM calls WHERE duration > 0")->fetchColumn() ?: 0;
-
-$calls = $pdo->query("SELECT * FROM calls ORDER BY started_at DESC LIMIT 10")->fetchAll();
+$calls = $pdo->query("SELECT * FROM calls ORDER BY started_at DESC")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Panel | Yaban Mercini Admin</title>
+    <title>Aramalar | Yaban Mercini Admin</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -22,31 +17,16 @@ $calls = $pdo->query("SELECT * FROM calls ORDER BY started_at DESC LIMIT 10")->f
     <nav class="sidebar">
         <div class="logo">Yaban Mercini <span>Admin</span></div>
         <ul>
-            <li class="active" onclick="location.href='index.php'">Dashboard</li>
-            <li onclick="location.href='calls.php'">Aramalar</li>
+            <li onclick="location.href='index.php'">Dashboard</li>
+            <li class="active" onclick="location.href='calls.php'">Aramalar</li>
             <li><a href="/phpmyadmin/" target="_blank">phpMyAdmin</a></li>
             <li style="margin-top: 2rem; color: #ff6b6b;" onclick="location.href='logout.php'">Çıkış Yap</li>
         </ul>
     </nav>
 
     <main class="content">
-        <h1>Raporlar</h1>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Toplam Arama</h3>
-                <p><?php echo $total_calls; ?></p>
-            </div>
-            <div class="stat-card">
-                <h3>İlgilenen Adaylar</h3>
-                <p><?php echo $interested_calls; ?></p>
-            </div>
-            <div class="stat-card">
-                <h3>Ort. Görüşme Süresi</h3>
-                <p><?php echo round($avg_duration, 1); ?>s</p>
-            </div>
-        </div>
-
-        <h2>Son Aramalar</h2>
+        <h1>Tüm Aramalar</h1>
+        
         <table class="calls-table">
             <thead>
                 <tr>

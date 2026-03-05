@@ -28,11 +28,13 @@ $transcript = $stmt->fetchAll();
         <div class="logo">Yaban Mercini <span>Admin</span></div>
         <ul>
             <li onclick="location.href='index.php'">Dashboard</li>
-            <li onclick="location.href='index.php'">Aramalar</li>
+            <li onclick="location.href='calls.php'">Aramalar</li>
+            <li><a href="/phpmyadmin/" target="_blank">phpMyAdmin</a></li>
+            <li style="margin-top: 2rem; color: #ff6b6b;" onclick="location.href='logout.php'">Çıkış Yap</li>
         </ul>
     </nav>
     <main class="content">
-        <a href="index.php" style="color: var(--accent); text-decoration: none;">&lt; Geri Dön</a>
+        <a href="javascript:history.back()" style="color: var(--accent); text-decoration: none;">&lt; Geri Dön</a>
         <h1 style="margin-top: 1rem;">Arama Detayı</h1>
         <div class="stat-card" style="margin-bottom: 2rem;">
             <p style="font-size: 1.2rem;"><?php echo $call['phone_number']; ?> | <?php echo date('d.m.Y H:i', strtotime($call['started_at'])); ?> | <?php echo $call['duration']; ?>s</p>
