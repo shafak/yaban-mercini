@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+websockets
+twilio
+certifi
+aiomysql
+python-dotenv
+openai
+cryptography
+python-multipart

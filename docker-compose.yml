@@ -1,0 +1,69 @@
+services:
+  fastapi:
+    build: .
+    volumes:
+      - ./src:/app/src
+      - ./conversations:/app/conversations
+      - ./call.py:/app/call.py
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: kaptango
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: kaptango_user
+      MYSQL_PASSWORD: kaptango_password
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - fastapi
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+      - PMA_USER=kaptango_user
+      - PMA_PASSWORD=kaptango_password
+    depends_on:
+      - db
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    restart: always
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=kaptango
+      - MYSQL_USER=kaptango_user
+      - MYSQL_PASSWORD=kaptango_password
+      - ADMIN_USER=admin
+      - ADMIN_PASS=admin_pass_123
+    depends_on:
+      - db
