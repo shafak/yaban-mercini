@@ -9,6 +9,11 @@ services:
       - .env
     ports:
       - "8000:8000"
+      - "9090:9090"
+      - "8084:8084"
+    environment:
+      - TELEPHONY_PROVIDER=${TELEPHONY_PROVIDER:-netgsm}
+    restart: always
     depends_on:
       db:
         condition: service_healthy
@@ -17,10 +22,12 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: kaptango
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: yabanmercini
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: kaptango_user
       MYSQL_PASSWORD: kaptango_password
+    volumes:
+      - ./mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
     healthcheck:
@@ -35,6 +42,7 @@ services:
     volumes:
       - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./frontend:/usr/share/nginx/html:ro
+    restart: always
     depends_on:
       - fastapi
 
@@ -60,10 +68,22 @@ services:
       - ./frontend:/usr/share/nginx/html
     environment:
       - MYSQL_HOST=db
-      - MYSQL_DATABASE=kaptango
+      - MYSQL_DATABASE=yabanmercini
       - MYSQL_USER=kaptango_user
       - MYSQL_PASSWORD=kaptango_password
       - ADMIN_USER=admin
       - ADMIN_PASS=admin_pass_123
     depends_on:
       - db
+
+  freeswitch:
+    build:
+      context: docker/freeswitch
+    restart: always
+    network_mode: host
+    volumes:
+      - ./docker/freeswitch/sip_profiles/external/netgsm.xml:/etc/freeswitch/sip_profiles/external/netgsm.xml
+      - ./docker/freeswitch/dialplan/public/netgsm_inbound.xml:/etc/freeswitch/dialplan/public/netgsm_inbound.xml
+      - ./docker/freeswitch/vars/netgsm.xml:/etc/freeswitch/vars/netgsm.xml
+    env_file:
+      - .env
